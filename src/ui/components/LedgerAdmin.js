@@ -16,6 +16,8 @@ import {
   FormControlLabel,
   List,
   ListItem,
+  ListItemText,
+  ListSubheader,
   TextField,
 } from "@material-ui/core";
 import {useLedger} from "../utils/LedgerContext";
@@ -53,6 +55,11 @@ const useStyles = makeStyles((theme) => {
     },
     checkboxElement: {flexGrow: 1, flexBasis: 0, margin: theme.spacing(3)},
     IdentitiesHeader: {margin: theme.spacing(3, 0)},
+    listSubheader: {
+      display: "grid",
+      gridTemplateColumns: "auto auto",
+      justifyContent: "space-between",
+    },
   };
 });
 
@@ -126,7 +133,7 @@ export const LedgerAdmin = (): ReactNode => {
     const renderIdentity = (i: Identity, notLastElement: boolean) => (
       <>
         <ListItem button onClick={() => setActiveIdentity(i)} key={i.id}>
-          {i.name}
+          <ListItemText primary={i.name} />
           <Checkbox
             onChange={handleSingleCheck}
             checked={Boolean(isChecked[i.id])}
@@ -211,7 +218,19 @@ export const LedgerAdmin = (): ReactNode => {
         </>
       )}
       <div className={classes.centerRow}>
-        <List fullWidth className={classes.identityList}>
+        <List
+          fullWidth
+          subheader={
+            <ListSubheader>
+              <div className={classes.listSubheader}>
+                <div>Participant</div>
+                <div>Active</div>
+              </div>
+            </ListSubheader>
+          }
+          className={classes.identityList}
+        >
+          <Divider />
           {renderIdentities()}
         </List>
       </div>

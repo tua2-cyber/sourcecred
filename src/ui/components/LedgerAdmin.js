@@ -131,8 +131,8 @@ export const LedgerAdmin = (): ReactNode => {
 
   const renderIdentities = () => {
     const renderIdentity = (i: Identity, notLastElement: boolean) => (
-      <>
-        <ListItem button onClick={() => setActiveIdentity(i)} key={i.id}>
+      <span key={i.id}>
+        <ListItem button onClick={() => setActiveIdentity(i)}>
           <ListItemText primary={i.name} />
           <Checkbox
             onChange={handleSingleCheck}
@@ -143,7 +143,7 @@ export const LedgerAdmin = (): ReactNode => {
           />
         </ListItem>
         {notLastElement && <Divider />}
-      </>
+      </span>
     );
     const numAccounts = ledger.accounts().length;
 

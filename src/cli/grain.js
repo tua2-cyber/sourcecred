@@ -1,6 +1,5 @@
 // @flow
 
-import fs from "fs-extra";
 import {join} from "path";
 import {loadFileWithDefault, loadJson} from "../util/disk";
 import {fromJSON as credResultFromJson} from "../analysis/credResult";
@@ -13,9 +12,11 @@ import dedent from "../util/dedent";
 import * as GrainConfig from "../api/grainConfig";
 import type {Command} from "./command";
 import {distributionMarkdownSummary} from "../core/ledger/distributionSummary/distributionSummary";
-import {loadCurrencyDetails} from "../cli/common";
+import {loadCurrencyDetails, saveLedger} from "../cli/common";
 import {type CurrencyDetails} from "../api/currencyConfig";
 import {allocationMarkdownSummary} from "../core/ledger/distributionSummary/allocationSummary";
+import {DiskStorage} from "../core/storage/disk";
+import {toByteString, fromByteString} from "../core/storage";
 import * as G from "../core/ledger/grain";
 
 function die(std, message) {
@@ -39,12 +40,15 @@ const grainCommand: Command = async (args, std) => {
   }
 
   const baseDir = process.cwd();
+  const diskStorage = new DiskStorage();
   const grainConfigPath = join(baseDir, "config", "grain.json");
   const grainConfig = await loadJson(grainConfigPath, GrainConfig.parser);
   const distributionPolicy = GrainConfig.toDistributionPolicy(grainConfig);
 
-  const credResultPath = join(baseDir, "output", "credResult.json");
-  const credResultJson = JSON.parse(await fs.readFile(credResultPath));
+  const credResultPath = join("output", "credResult.json");
+  const credResultJson = JSON.parse(
+    fromByteString(await diskStorage.get(credResultPath))
+  );
   const credResult = credResultFromJson(credResultJson);
   const credView = new CredView(credResult);
 
@@ -92,11 +96,15 @@ const grainCommand: Command = async (args, std) => {
   });
 
   if (!simulation) {
-    await fs.writeFile(ledgerPath, ledger.serialize());
+    await saveLedger(baseDir, ledger);
 
     const credAccounts = computeCredAccounts(ledger, credView);
-    const accountsPath = join(baseDir, "output", "accounts.json");
-    await fs.writeFile(accountsPath, stringify(credAccounts));
+    const accountsPath = join(baseDir, "output");
+    const accountsStorage = new DiskStorage(accountsPath);
+    await accountsStorage.set(
+      "accounts.json",
+      toByteString(stringify(credAccounts))
+    );
   }
 
   return 0;

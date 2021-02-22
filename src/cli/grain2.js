@@ -1,6 +1,5 @@
 // @flow
 
-import fs from "fs-extra";
 import {join} from "path";
 import {loadFileWithDefault, loadJson} from "../util/disk";
 import {Ledger} from "../core/ledger/ledger";
@@ -9,7 +8,9 @@ import {computeCredAccounts2} from "../core/ledger/credAccounts";
 import stringify from "json-stable-stringify";
 import * as G from "../core/ledger/grain";
 import dedent from "../util/dedent";
-import {loadCredGraph} from "./common";
+import {loadCredGraph, saveLedger} from "./common";
+import {DiskStorage} from "../core/storage/disk";
+import {toByteString} from "../core/storage";
 
 import * as GrainConfig from "../api/grainConfig";
 import type {Command} from "./command";
@@ -35,6 +36,7 @@ const grain2Command: Command = async (args, std) => {
   }
 
   const baseDir = process.cwd();
+  const diskStorage = new DiskStorage();
   const grainConfigPath = join(baseDir, "config", "grain.json");
   const grainConfig = await loadJson(grainConfigPath, GrainConfig.parser);
   const distributionPolicy = GrainConfig.toDistributionPolicy(grainConfig);
@@ -72,11 +74,11 @@ const grain2Command: Command = async (args, std) => {
   );
 
   if (!simulation) {
-    await fs.writeFile(ledgerPath, ledger.serialize());
+    await saveLedger(baseDir, ledger);
 
     const credAccounts = computeCredAccounts2(ledger, credGraph);
-    const accountsPath = join(baseDir, "output", "accounts.json");
-    await fs.writeFile(accountsPath, stringify(credAccounts));
+    const accountsPath = join("output", "accounts.json");
+    await diskStorage.set(accountsPath, toByteString(stringify(credAccounts)));
   }
 
   return 0;

@@ -159,7 +159,7 @@ export class Fetcher implements DiscordApi {
         id: x.user.id,
         username: x.user.username,
         discriminator: x.user.discriminator,
-        bot: x.user.bot || x.user.system || false,
+        bot: x.user.bot || false,
       },
       nick: x.nick || null,
       roles: x.roles,

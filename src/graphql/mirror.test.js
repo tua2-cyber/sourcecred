@@ -3377,24 +3377,56 @@ describe("graphql/mirror", () => {
         const db = new Database(":memory:");
         const mirror = new Mirror(db, buildGithubSchema());
 
+        type RawType = {|+typename: Schema.Typename, +id: Schema.ObjectId|};
+
         const objects = {
-          repo: () => ({typename: "Repository", id: "repo:foo/bar"}),
-          issue1: () => ({typename: "Issue", id: "issue:#1"}),
-          issue2: () => ({typename: "Issue", id: "issue:#2"}),
-          issue3: () => ({typename: "Issue", id: "issue:#3"}),
-          alice: () => ({typename: "User", id: "user:alice"}),
-          bob: () => ({typename: "User", id: "user:bob"}),
-          ethereal: () => ({typename: "User", id: "user:ethereal"}),
-          nobody: () => ({typename: "User", id: "user:nobody"}),
-          noboty: () => ({typename: "Bot", id: "bot:noboty"}),
-          comment1: () => ({typename: "IssueComment", id: "comment:#2.1"}),
-          comment2: () => ({typename: "IssueComment", id: "comment:#2.2"}),
-          closedEvent: () => ({
+          repo: (): RawType => ({
+            typename: "Repository",
+            id: "repo:foo/bar",
+          }),
+          issue1: (): RawType => ({
+            typename: "Issue",
+            id: "issue:#1",
+          }),
+          issue2: (): RawType => ({
+            typename: "Issue",
+            id: "issue:#2",
+          }),
+          issue3: (): RawType => ({
+            typename: "Issue",
+            id: "issue:#3",
+          }),
+          alice: (): RawType => ({
+            typename: "User",
+            id: "user:alice",
+          }),
+          bob: (): RawType => ({
+            typename: "User",
+            id: "user:bob",
+          }),
+          ethereal: (): RawType => ({typename: "User", id: "user:ethereal"}),
+          nobody: (): RawType => ({
+            typename: "User",
+            id: "user:nobody",
+          }),
+          noboty: (): RawType => ({
+            typename: "Bot",
+            id: "bot:noboty",
+          }),
+          comment1: (): RawType => ({
+            typename: "IssueComment",
+            id: "comment:#2.1",
+          }),
+          comment2: (): RawType => ({
+            typename: "IssueComment",
+            id: "comment:#2.2",
+          }),
+          closedEvent: (): RawType => ({
             typename: "ClosedEvent",
             id: "issue:#2!closed#0",
           }),
-          commit1: () => ({typename: "Commit", id: "commit:oid"}),
-          commit2: () => ({typename: "Commit", id: "commit:zzz"}),
+          commit1: (): RawType => ({typename: "Commit", id: "commit:oid"}),
+          commit2: (): RawType => ({typename: "Commit", id: "commit:zzz"}),
         };
         const asNode = ({
           typename,
